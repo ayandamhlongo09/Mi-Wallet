@@ -1,4 +1,5 @@
 #!/bin/bash
+#Currently attached for assessment and testing purposes
 
 FLAVOR=$1
 
@@ -39,3 +40,4 @@ EOL
 fi
 
 echo "Created file: $DIR/$FILE"
+
