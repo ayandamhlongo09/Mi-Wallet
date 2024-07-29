@@ -48,7 +48,7 @@ class LocalStorageRepositoryImpl implements LocalStorageRepository {
   }
 
   @override
-  Future<void> deleteAll() async {
+  Future<void> deleteAllCards() async {
     await localStorageDataSource.saveCreditCard("");
   }
 }

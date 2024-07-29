@@ -6,5 +6,5 @@ abstract class LocalStorageRepository {
   Future<List<String>> getIssueingCountriesList();
   Future<List<String>> getBannedCountries();
   Future<void> saveBannedCountries(List<String> countries);
-  Future<void> deleteAll();
+  Future<void> deleteAllCards();
 }

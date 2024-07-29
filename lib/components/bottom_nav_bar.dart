@@ -31,7 +31,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     final List<Widget> pageList = [
       const WalletPage(),
-      const ManageWalletPage(),
+       ManageWalletPage(),
     ];
 
     return Scaffold(

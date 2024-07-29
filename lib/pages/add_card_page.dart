@@ -91,143 +91,145 @@ class _AddCardState extends State<AddCard> {
 
   Widget addCartViiew({required CreditCardViewModel creditCardViewModel}) {
     return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FormBuilder(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    FormBuilderTextField(
-                      name: 'cardNumber',
-                      controller: _cardNumberController,
-                      decoration: const InputDecoration(labelText: 'Card Number'),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        CardNumberInputFormatter(),
-                        LengthLimitingTextInputFormatter(19),
-                      ],
-                      validator: FormBuilderValidators.compose(
-                          [FormBuilderValidators.required(), FormBuilderValidators.minLength(19), FormBuilderValidators.maxLength(19)]),
-                      onChanged: (value) {
-                        _formKey.currentState?.validate();
-                      },
-                    ),
-                    FormBuilderDropdown<CardNetwork>(
-                      name: 'cardType',
-                      decoration: const InputDecoration(labelText: 'Card Type'),
-                      initialValue: _cardType,
-                      items: CardNetwork.values.map((CardNetwork type) {
-                        return DropdownMenuItem<CardNetwork>(
-                          value: type,
-                          child: Text(type.toString().split('.').last),
-                        );
-                      }).toList(),
-                      onChanged: (CardNetwork? newValue) {
-                        setState(() {
-                          _cardType = newValue!;
-                        });
-                      },
-                    ),
-                    FormBuilderTextField(
-                      name: 'holder',
-                      controller: _holderController,
-                      decoration: const InputDecoration(labelText: 'Holder Name'),
-                      validator: FormBuilderValidators.required(),
-                      onChanged: (value) {
-                        _formKey.currentState?.validate();
-                      },
-                    ),
-                    FormBuilderTextField(
-                      name: 'cvv',
-                      controller: _cvvController,
-                      decoration: const InputDecoration(labelText: 'CVV'),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(3),
-                      ],
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                        FormBuilderValidators.minLength(3),
-                        FormBuilderValidators.maxLength(3),
-                      ]),
-                      onChanged: (value) {
-                        _formKey.currentState?.validate();
-                      },
-                    ),
-                    FormBuilderTextField(
-                      name: 'validity',
-                      controller: _validityController,
-                      decoration: const InputDecoration(labelText: 'Expiry (MM/YY)'),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        ValidityInputFormatter(),
-                      ],
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                        (value) {
-                          if (value?.length != 5 || !RegExp(r'^\d{2}/\d{2}$').hasMatch(value!)) {
-                            return 'Enter a valid expiry date (MM/YY)';
-                          }
-                          return null;
+      child: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FormBuilder(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      FormBuilderTextField(
+                        name: 'cardNumber',
+                        controller: _cardNumberController,
+                        decoration: const InputDecoration(labelText: 'Card Number'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          CardNumberInputFormatter(),
+                          LengthLimitingTextInputFormatter(19),
+                        ],
+                        validator: FormBuilderValidators.compose(
+                            [FormBuilderValidators.required(), FormBuilderValidators.minLength(19), FormBuilderValidators.maxLength(19)]),
+                        onChanged: (value) {
+                          _formKey.currentState?.validate();
                         },
-                      ]),
-                      onChanged: (value) {
-                        _formKey.currentState?.validate();
-                      },
-                    ),
-                    FormBuilderDropdown<String>(
-                      name: 'issuingCountry',
-                      decoration: const InputDecoration(labelText: 'Issuing Country'),
-                      items: creditCardViewModel.issueingCountries.map((country) {
-                        return DropdownMenuItem<String>(
-                          value: country,
-                          child: Text(country),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCountry = value;
-                        });
-                        _formKey.currentState?.validate();
-                      },
-                      validator: FormBuilderValidators.required(),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          _cardType = creditCardViewModel.getCardType(_cardNumberController.text);
-                          creditCardViewModel.addCreditCard(CreditCard(
-                              cardType: creditCardViewModel.getCardType(_cardNumberController.text),
-                              cardNumber: int.tryParse(_cardNumberController.text.replaceAll(' ', '')) ?? 0,
-                              cvv: int.tryParse(_cvvController.text) ?? 22,
-                              issuingCountry: _selectedCountry ?? creditCardViewModel.issueingCountries[0],
-                              holder: _holderController.text,
-                              validity: _validityController.text));
-                          GoRouter.of(context).pop();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
                       ),
-                      child: const Text(
-                        'Add Card',
+                      FormBuilderDropdown<CardNetwork>(
+                        name: 'cardType',
+                        decoration: const InputDecoration(labelText: 'Card Type'),
+                        initialValue: _cardType,
+                        items: CardNetwork.values.map((CardNetwork type) {
+                          return DropdownMenuItem<CardNetwork>(
+                            value: type,
+                            child: Text(type.toString().split('.').last),
+                          );
+                        }).toList(),
+                        onChanged: (CardNetwork? newValue) {
+                          setState(() {
+                            _cardType = newValue!;
+                          });
+                        },
                       ),
-                    ),
-                  ],
+                      FormBuilderTextField(
+                        name: 'holder',
+                        controller: _holderController,
+                        decoration: const InputDecoration(labelText: 'Holder Name'),
+                        validator: FormBuilderValidators.required(),
+                        onChanged: (value) {
+                          _formKey.currentState?.validate();
+                        },
+                      ),
+                      FormBuilderTextField(
+                        name: 'cvv',
+                        controller: _cvvController,
+                        decoration: const InputDecoration(labelText: 'CVV'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
+                        ],
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          FormBuilderValidators.minLength(3),
+                          FormBuilderValidators.maxLength(3),
+                        ]),
+                        onChanged: (value) {
+                          _formKey.currentState?.validate();
+                        },
+                      ),
+                      FormBuilderTextField(
+                        name: 'validity',
+                        controller: _validityController,
+                        decoration: const InputDecoration(labelText: 'Expiry (MM/YY)'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          ValidityInputFormatter(),
+                        ],
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          (value) {
+                            if (value?.length != 5 || !RegExp(r'^\d{2}/\d{2}$').hasMatch(value!)) {
+                              return 'Enter a valid expiry date (MM/YY)';
+                            }
+                            return null;
+                          },
+                        ]),
+                        onChanged: (value) {
+                          _formKey.currentState?.validate();
+                        },
+                      ),
+                      FormBuilderDropdown<String>(
+                        name: 'issuingCountry',
+                        decoration: const InputDecoration(labelText: 'Issuing Country'),
+                        items: creditCardViewModel.issueingCountries.map((country) {
+                          return DropdownMenuItem<String>(
+                            value: country,
+                            child: Text(country),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCountry = value;
+                          });
+                          _formKey.currentState?.validate();
+                        },
+                        validator: FormBuilderValidators.required(),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState?.saveAndValidate() ?? false) {
+                            _cardType = creditCardViewModel.getCardType(_cardNumberController.text);
+                            creditCardViewModel.addCreditCard(CreditCard(
+                                cardType: creditCardViewModel.getCardType(_cardNumberController.text),
+                                cardNumber: int.tryParse(_cardNumberController.text.replaceAll(' ', '')) ?? 0,
+                                cvv: int.tryParse(_cvvController.text) ?? 22,
+                                issuingCountry: _selectedCountry ?? creditCardViewModel.issueingCountries[0],
+                                holder: _holderController.text,
+                                validity: _validityController.text));
+                            GoRouter.of(context).pop();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text(
+                          'Add Card',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

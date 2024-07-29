@@ -4,5 +4,5 @@ abstract class LocalStorageDataSource {
   Future<List<String>> getIssueingCountriesList();
   Future<String?> getBannedCountries();
   Future<void> saveBannedCountries(String jsonString);
-  Future<void> deleteAll();
+  Future<void> deleteAllCards();
 }

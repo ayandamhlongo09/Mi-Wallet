@@ -71,7 +71,6 @@ flutter:
   assets:
     - assets/cfg/
     - assets/countries.json
-    - assets/banned_countries.json
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

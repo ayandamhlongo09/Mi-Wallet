@@ -44,7 +44,7 @@ class LocalStorageDataSourceImpl extends LocalStorageDataSource {
   }
 
   @override
-  Future<void> deleteAll() async {
+  Future<void> deleteAllCards() async {
     await secureStorage.clear();
   }
 }
