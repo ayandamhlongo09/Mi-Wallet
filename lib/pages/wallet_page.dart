@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_conditional_rendering/conditional_switch.dart';
 import 'package:global_configuration/global_configuration.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mi_wallet/components/credit_card.dart';
 import 'package:mi_wallet/components/loading_widget.dart';
 import 'package:mi_wallet/models/credit_card.dart';
+import 'package:mi_wallet/router/router.dart';
 import 'package:mi_wallet/utils/values/colors.dart';
 import 'package:mi_wallet/utils/values/enums.dart';
 import 'package:mi_wallet/viewmodels/credit_card_viewmodel.dart';
@@ -17,26 +19,43 @@ class WalletPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<CreditCardViewModel>(builder: (BuildContext context, CreditCardViewModel creditCardViewModel, _) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (creditCardViewModel.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(creditCardViewModel.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        });
         return ConditionalSwitch.single<LoadingStatus>(
           context: context,
           valueBuilder: (BuildContext context) => creditCardViewModel.status,
           caseBuilders: {
             LoadingStatus.busy: (BuildContext context) => const LoadingWidget(),
-            LoadingStatus.failed: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel),
-            LoadingStatus.idle: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel),
-            LoadingStatus.completed: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel),
+            LoadingStatus.failed: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel, context: context),
+            LoadingStatus.idle: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel, context: context),
+            LoadingStatus.completed: (BuildContext context) => cardStackList(creditCardViewModel: creditCardViewModel, context: context),
           },
           fallbackBuilder: (BuildContext context) => const SizedBox(),
         );
       }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          GoRouter.of(context).pushNamed(AppRoutes.addCard);
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
-  Widget cardStackList({required CreditCardViewModel creditCardViewModel}) {
+  Widget cardStackList({required CreditCardViewModel creditCardViewModel, required BuildContext context}) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(
               height: 40.0,
@@ -51,77 +70,110 @@ class WalletPage extends StatelessWidget {
               ),
             ),
             const SizedBox(
-              height: 15.0,
+              height: 50.0,
             ),
             SizedBox(
               height: 240.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: creditCardViewModel.creditCards.length,
-                itemBuilder: (context, index) {
-                  CreditCard card = creditCardViewModel.creditCards[index];
+              child: creditCardViewModel.creditCards.isNotEmpty
+                  ? ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: creditCardViewModel.creditCards.length,
+                      itemBuilder: (context, index) {
+                        CreditCard card = creditCardViewModel.creditCards[index];
 
-                  CardComponent cardWidget;
+                        CardComponent cardWidget;
 
-                  switch (card.cardType) {
-                    case CardNetwork.visa:
-                      cardWidget = VisaCard(
-                        cardNumber: card.cardNumber,
-                        validity: card.validity,
-                        holder: card.holder,
-                        cvv: card.cvv,
-                        issuingCountry: card.issuingCountry,
-                      );
-                      break;
-                    case CardNetwork.mastercard:
-                      cardWidget = Mastercard(
-                        cardNumber: card.cardNumber,
-                        validity: card.validity,
-                        holder: card.holder,
-                        cvv: card.cvv,
-                        issuingCountry: card.issuingCountry,
-                      );
-                      break;
-                    case CardNetwork.discover:
-                      cardWidget = Discovercard(
-                        cardNumber: card.cardNumber,
-                        validity: card.validity,
-                        holder: card.holder,
-                        cvv: card.cvv,
-                        issuingCountry: card.issuingCountry,
-                      );
-                      break;
-                    default:
-                      cardWidget = UnknownCard(
-                        cardNumber: card.cardNumber,
-                        validity: card.validity,
-                        holder: card.holder,
-                        cvv: card.cvv,
-                        issuingCountry: card.issuingCountry,
-                      );
-                  }
+                        switch (card.cardType) {
+                          case CardNetwork.visa:
+                            cardWidget = VisaCard(
+                              cardNumber: card.cardNumber,
+                              validity: card.validity,
+                              holder: card.holder,
+                              cvv: card.cvv,
+                              issuingCountry: card.issuingCountry,
+                            );
+                            break;
+                          case CardNetwork.mastercard:
+                            cardWidget = Mastercard(
+                              cardNumber: card.cardNumber,
+                              validity: card.validity,
+                              holder: card.holder,
+                              cvv: card.cvv,
+                              issuingCountry: card.issuingCountry,
+                            );
+                            break;
+                          case CardNetwork.discover:
+                            cardWidget = Discovercard(
+                              cardNumber: card.cardNumber,
+                              validity: card.validity,
+                              holder: card.holder,
+                              cvv: card.cvv,
+                              issuingCountry: card.issuingCountry,
+                            );
+                            break;
+                          default:
+                            cardWidget = UnknownCard(
+                              cardNumber: card.cardNumber,
+                              validity: card.validity,
+                              holder: card.holder,
+                              cvv: card.cvv,
+                              issuingCountry: card.issuingCountry,
+                            );
+                        }
 
-                  return cardWidget.buildCard();
-                },
-              ),
+                        return cardWidget.buildCard();
+                      },
+                    )
+                  : const Text(
+                      "No Cards To Show",
+                      style: TextStyle(color: Colors.grey),
+                    ),
             ),
             const SizedBox(
               height: 30.0,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                MaterialButton(
-                  textColor: AppColors.white,
-                  color: AppColors.green,
-                  onPressed: () {},
-                  child: const Text('Login', style: TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
-              ],
-            )
+            MaterialButton(
+              textColor: AppColors.white,
+              color: AppColors.green,
+              onPressed: () {
+                creditCardViewModel.addCreditCard(CreditCard(
+                  cardNumber: 9876543210987654,
+                  cardType: CardNetwork.mastercard,
+                  holder: 'Jane Doe',
+                  cvv: 456,
+                  validity: '06/28',
+                  issuingCountry: 'Canada',
+                ));
+              },
+              child: const Text('Add New Card +', style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            MaterialButton(
+              textColor: AppColors.white,
+              color: AppColors.green,
+              onPressed: () {
+                creditCardViewModel.addCreditCard(CreditCard(
+                  cardNumber: 9876543210987654,
+                  cardType: CardNetwork.mastercard,
+                  holder: 'Jane Doe',
+                  cvv: 456,
+                  validity: '06/28',
+                  issuingCountry: 'Canada',
+                ));
+              },
+              child: const Text('Add manually', style: TextStyle(color: Colors.white)),
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                GoRouter.of(context).pushNamed(AppRoutes.addCard);
+              },
+              child: const Text('Scan Card'),
+            ),
           ],
         ),
       ),
