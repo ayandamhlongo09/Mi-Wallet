@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:mi_wallet/services/core/storage/local_storage.dart';
 import 'package:mi_wallet/services/core/storage/secure_storage.dart';
 import 'package:mi_wallet/services/datasources/storage/local_storage_data_source.dart';
@@ -24,6 +27,13 @@ class LocalStorageDataSourceImpl extends LocalStorageDataSource {
   }
 
   @override
+  Future<List<String>> getIssueingCountriesList() async {
+    final String response = await rootBundle.loadString('assets/countries.json');
+    final List<dynamic> data = json.decode(response);
+    return data.map((item) => item as String).toList();
+  }
+
+  @override
   Future<String?> getBannedCountries() async {
     return await localStorage.get<String?>(_bannedCountryListKey);
   }
@@ -33,7 +43,7 @@ class LocalStorageDataSourceImpl extends LocalStorageDataSource {
     return await localStorage.put<String?>(_bannedCountryListKey, jsonString);
   }
 
-   @override
+  @override
   Future<void> deleteAll() async {
     await secureStorage.clear();
   }
