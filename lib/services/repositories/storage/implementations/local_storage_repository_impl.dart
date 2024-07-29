@@ -20,11 +20,14 @@ class LocalStorageRepositoryImpl implements LocalStorageRepository {
   }
 
   @override
-  Future<void> saveCreditCard(CreditCard card) async {
-    List<CreditCard> cards = await getCreditCards();
-    cards.add(card);
-    String encodedCards = jsonEncode(cards.map((card) => card.toMap()).toList());
+  Future<void> saveCreditCards(List<CreditCard> creditCards) async {
+    String encodedCards = jsonEncode(creditCards.map((card) => card.toMap()).toList());
     await localStorageDataSource.saveCreditCard(encodedCards);
+  }
+
+  @override
+  Future<List<String>> getIssueingCountriesList() {
+    return localStorageDataSource.getIssueingCountriesList();
   }
 
   @override
@@ -45,7 +48,7 @@ class LocalStorageRepositoryImpl implements LocalStorageRepository {
   }
 
   @override
-  Future<void> deleteAll() async {
+  Future<void> deleteAllCards() async {
     await localStorageDataSource.saveCreditCard("");
   }
 }
